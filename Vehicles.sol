@@ -70,20 +70,20 @@ contract Vehicles{
 	event changeStatusEvent ( // triggers status change
     );
 
-    address constant public admin = 0xE0f5206BBD039e7b0592d8918820024e2a7437b9; // who registers the car into system. 
+    address constant public manufacturer = 0xE0f5206BBD039e7b0592d8918820024e2a7437b9; // who registers the car into system. 
 	address constant public exampleowner = 0xE0F5206bbd039e7b0592d8918820024E2A743222;
 
     constructor () public { // constructor, inserts new car in system. we map starting from id=1, hardcoded values of all
         addCar("Toyota X","ADDeFFtt45045594xxE3948",2019, "other info","V.0.56771B",exampleowner); //
 		
         changeStatusCar(1, true, "some timestamp");
-        //updateCar(1, "V.0.6111A", "some timestamp");
+        updateCar(1, "V.0.6111A", "some timestamp");
         // try addstory and add status.
     }
 
 	
 	function addCar (string memory _name, string memory _vastidor, uint _year, string memory _others, string memory _actualversion, address _owner) public {
-        //require(msg.sender==admin);
+        //require(msg.sender==manufacturer);
 
         carsCount ++; // inc count at the beginning. represents ID also. 
         cars[carsCount].id = carsCount; 
@@ -101,18 +101,18 @@ contract Vehicles{
 	
 	// update version of car, update hash
 	function updateCar (uint _carId, string memory _actualversion, string memory _timestamp) public {
-        require(_carId > 0 && _carId <= carsCount);  // security check avoid memory leaks
+        /*require(_carId > 0 && _carId <= carsCount);  // security check avoid memory leaks
 
         // store error calls possible malicious. also this spends gas
-        if(msg.sender != cars[_carId].owner) {
+        if(msg.sender != cars[_carId].owner || msg.sender==manufacturer) {
             failedCount++;
             failedattempts[failedCount] = FailedAttempt(failedCount, _carId, "update",_timestamp, msg.sender); // we store error
         }
 
 
-		require(msg.sender==cars[_carId].owner); // only owner
+		require(msg.sender != cars[_carId].owner || msg.sender==manufacturer); 
 		require(true==cars[_carId].active); //  only if active
-        
+        */
 
 		storyCount++;
 		
@@ -132,12 +132,12 @@ contract Vehicles{
 
 
         // store error calls possible malicious
-        if(msg.sender != cars[_carId].owner) {
+        if(msg.sender != cars[_carId].owner || msg.sender==manufacturer) {
             failedCount++;
             failedattempts[failedCount] = FailedAttempt(failedCount, _carId, "status",_timestamp, msg.sender); // we store error
         }
 
-		require(msg.sender==cars[_carId].owner);  
+		require(msg.sender != cars[_carId].owner || msg.sender==manufacturer);  
         */
 
 		
@@ -164,7 +164,7 @@ contract Vehicles{
 	// get the array of story of a product, later we can loop them using getters to obtain the data
     function getStroriesCar (uint _carId) public view returns (uint [] memory)  {
         require(_carId > 0 && _carId <= carsCount);  // security check avoid memory leaks
-        require(msg.sender==cars[_carId].owner); 
+        require(msg.sender != cars[_carId].owner || msg.sender==manufacturer); 
        
 
         return cars[_carId].updateStory;
@@ -173,7 +173,7 @@ contract Vehicles{
 	// get the array of changes of a product, later we can loop them using getters to obtain the data
     function getChangesCar (uint _carId) public view returns (uint [] memory)  {
         require(_carId > 0 && _carId <= carsCount);  // security check avoid memory leaks
-        require(msg.sender==cars[_carId].owner); 
+        require(msg.sender != cars[_carId].owner || msg.sender==manufacturer); 
         
 
         return cars[_carId].activeStory;
@@ -205,7 +205,7 @@ contract Vehicles{
 	// returns version number of a car.
     function getVersionCar (uint _carId) public view returns (string memory){
         require(_carId > 0 && _carId <= carsCount);  // security check avoid memory leaks
-	    require(msg.sender==cars[_carId].owner);  // only owner has permissions
+	    require(msg.sender != cars[_carId].owner || msg.sender==manufacturer);  // only owner has permissions
         
 
         return cars[_carId].actualversion;
@@ -214,7 +214,7 @@ contract Vehicles{
 	// returns status of a car.
     function getStatusCar (uint _carId) public view returns (bool){
         require(_carId > 0 && _carId <= carsCount);  // security check avoid memory leaks
-	    require(msg.sender==cars[_carId].owner);  // only owner has permissions
+	    require(msg.sender != cars[_carId].owner || msg.sender==manufacturer);  // only owner has permissions
         
 
         return cars[_carId].active;
@@ -222,21 +222,21 @@ contract Vehicles{
 	
 	// returns global number of cars, needed to iterate the mapping and to know info.
     function getNumberOfCars () public view returns (uint){
-        require(msg.sender==admin);
+        require(msg.sender==manufacturer);
         
         return carsCount;
     }
 	
 	// returns global number of stories, needed to iterate the mapping and to know info.
     function getNumberOfStories () public view returns (uint){
-        require(msg.sender==admin);
+        require(msg.sender==manufacturer);
         
         return storyCount;
     }
 	
 	// returns global number of status, needed to iterate the mapping and to know info.
     function getNumberOfStatus () public view returns (uint){
-        require(msg.sender==admin);
+        require(msg.sender==manufacturer);
         
         return statusCount;
     }
